@@ -86,10 +86,9 @@ selector regex by adding a section for lye in your app's config:
 
 That will ensure that all functions in the check modules are treated as specs,
 except the check functions named `bar` and `qux`. Note that the `module_info`
-function is *always* added to the blacklist. (And yes, we know that technically
-`bar` is not an Erlang function name because it is lacking an arity, but check
-functions must have an arity of 1, which makes`'bar/1'` redundant in addition
-to being hard to type.)
+function is *always* added to the blacklist. (And yes, we know that, lacking an
+arity, `bar` is not a complete Erlang function name, but check functions must
+have an arity of 1, which makes`'bar/1'` redundant in addition to awkward.)
 
 ## Examples
 
