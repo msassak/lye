@@ -18,6 +18,7 @@
 -type fun_tup() :: {Fun::atom(), Arity::non_neg_integer()}.
 -type module_extractor() :: fun((module()) -> [fun_tup()]).
 -type spec_pattern() :: iodata().
+-type blacklisted_funs() :: [atom(),...].
 
 -define(SPEC_PATTERN, "_spec$").
 
@@ -65,7 +66,10 @@ module_exports(M, SP) when is_atom(M) ->
 -spec exported_specs([fun_tup()], SP::spec_pattern()) -> [fun_tup()].
 exported_specs(ExportedFuns, SP) ->
     {ok, RE} = re:compile(SP),
-    lists:filter(fun({F, _}) -> does_match(F, RE) and not builtin(F) end, ExportedFuns).
+    Blacklist = lookup_blacklisted_funs(),
+    lists:filter(fun({F, _}) ->
+        does_match(F, RE) and not on_blacklist(F, Blacklist)
+    end, ExportedFuns).
 
 -spec does_match(Fun::atom(), RE::re:mp()) -> boolean().
 does_match(Fun, RE) when is_atom(Fun) ->
@@ -74,9 +78,15 @@ does_match(Fun, RE) when is_atom(Fun) ->
         nomatch    -> false
     end.
 
--spec builtin(atom()) -> boolean().
-builtin(module_info) -> true;
-builtin(_) -> false.
+-spec on_blacklist(atom(), blacklisted_funs()) -> boolean().
+on_blacklist(Name, Blacklist) -> lists:member(Name, Blacklist).
+
+-spec lookup_blacklisted_funs() -> blacklisted_funs().
+lookup_blacklisted_funs() ->
+    case application:get_env(lye, blacklisted_funs) of
+        undefined                     -> [module_info];
+        {ok, Funs} when is_list(Funs) -> [module_info|Funs]
+    end.
 
 -spec lookup_spec_pattern() -> spec_pattern().
 lookup_spec_pattern() ->

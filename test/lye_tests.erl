@@ -48,11 +48,11 @@ check_test_() ->
     ].
 
 %% =====================================================================
-%% Override spec pattern
+%% Configuring Check Function Selection
 %% =====================================================================
 
 overriding_spec_pattern_test_() ->
-    application:set_env(lye, spec_pattern, ".*"),
+    application:set_env(lye, spec_pattern, "foo|any_spec"),
 
     { "looks for the spec_pattern env var before using the default",
         [
@@ -60,6 +60,14 @@ overriding_spec_pattern_test_() ->
             ?_assertMatch({error, [not_foo]}, lye:check(bar, [lye_test_mod]))
         ]
     }.
+
+adding_blacklisted_funs_test_() ->
+    application:set_env(lye, spec_pattern, "_spec$"),
+    application:set_env(lye, blacklisted_funs, [error_spec]),
+
+    { "doesn't check with the blacklisted functions",
+        ?_assertMatch(ok, lye:check(foo, [lye_test_mod])) }.
+
 
 %% =====================================================================
 %%  apply_specs/2
