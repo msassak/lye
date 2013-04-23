@@ -67,8 +67,33 @@ ok
 ok
 ```
 
-`lay:check/2` is much nicer to work with when you aren't limited entirely to
+`lye:check/2` is much nicer to work with when you aren't limited entirely to
 defining funs in the REPL.
+
+## Configuration
+
+You can configure the blacklist of check function names and the check function
+selector regex by adding a section for lye in your app's config:
+
+```
+[
+    {lye, [
+        {spec_pattern, ".*"},
+        {blacklisted_funs, [bar, qux]}
+    ]}
+]
+```
+
+That will ensure that all functions in the check modules are treated as specs,
+except the check functions named `bar` and `qux`. Note that the `module_info`
+function is *always* added to the blacklist. (And yes, we know that technically
+`bar` is not an Erlang function name because it is lacking an arity, but check
+functions must have an arity of 1, which makes`'bar/1'` redundant in addition
+to being hard to type.)
+
+## Examples
+
+See the `examples` directory.
 
 ## License
 
